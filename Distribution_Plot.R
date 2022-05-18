@@ -14,7 +14,10 @@
   lapply(Package.set, library, character.only = TRUE)
   rm(Package.set,i)
 
-
+##### Parameter setting #####
+  Bin = 400
+  DerivSet = 50
+  
 ##### Input data #####
   MusFib.df <- read_excel("C:/Users/YSL/Downloads/cachexia_muscle-area-fiber-counts.xlsx", 
                                           sheet = "skeletal muscle sample raw data")
@@ -76,14 +79,14 @@
     #### Basic Hisplot ####
     ## Stack
     P_His <- ggplot(FreDis.df) + geom_histogram(aes(x = Area, colour = Groups, fill= Samples),
-                                                binwidth = 400)
+                                                binwidth = Bin)
     P_His
     P_His2 <- qplot(x=Area, data=FreDis.df, geom='histogram', fill=as.factor(Samples), 
-                    alpha=I(0.5), binwidth=400, position='identity')
+                    alpha=I(0.5), binwidth= Bin, position='identity')
     P_His2
     ## Overlay
     P_His3  <- ggplot(FreDis.df, aes(x=Area,  fill=Samples)) + 
-      geom_histogram( aes(y = ..density..), color="#e9ecef", alpha=0.6, position = 'identity', binwidth = 400) +
+      geom_histogram( aes(y = ..density..), color="#e9ecef", alpha=0.6, position = 'identity', binwidth = Bin) +
       # scale_fill_manual(values=c("#69b3a2", "#404080")) +
       labs(fill="")
     P_His3
@@ -91,13 +94,13 @@
     #### Overlay different type of Figures ####
     ggplot(FreDis.df, aes(x=Area,  fill=Samples))  +
       geom_density(size = 0.8, alpha = 0.5) + 
-      geom_histogram( aes(y = ..density..), color="#e9ecef", alpha=0.3, position = 'identity', binwidth = 400)
+      geom_histogram( aes(y = ..density..), color="#e9ecef", alpha=0.3, position = 'identity', binwidth = Bin)
     
     ##
     FreDis_S.df <- FreDis.df[FreDis.df$Samples=="F88",]
     P_OvDenHis_S <- ggplot(data = FreDis_S.df,
                     mapping = aes(x = Area, fill=as.factor(Samples)))
-    P_OvDenHis_S + geom_histogram(mapping = aes(y = ..density..), alpha = 0.5, binwidth=400) +
+    P_OvDenHis_S + geom_histogram(mapping = aes(y = ..density..), alpha = 0.5, binwidth= Bin) +
                    geom_density(size = 0.8, alpha = 0.4)
     rm(FreDis_S.df)  
 ##### Density Plot #####  
@@ -105,8 +108,7 @@
     FreDis.df <- FreDis.df[!is.na(FreDis.df$Area),]
     MS_Max = FreDis.df$Area  %>% max(na.rm = T)
     MS_Min = FreDis.df$Area  %>% min(na.rm = T)
-    
-    Bin = 400
+
     
     Max_Range = floor(MS_Max/Bin)+1 # floor(): Round down
     
@@ -189,9 +191,9 @@
         if(i==1){
           Deriv2.df <- Deriv.df[Deriv.df$Samples == Samples.set[i], ]
           model <- smooth.spline(x = Deriv2.df$avg, y = Deriv2.df$smooth)
-          Y0 <- predict(model, x = seq(0.1,max(Deriv2.df$avg),length=50), deriv=0)
-          Y1 <- predict(model, x = seq(0.1,max(Deriv2.df$avg),length=50), deriv=1)
-          Y2 <- predict(model, x = seq(0.1,max(Deriv2.df$avg),length=50), deriv=2)
+          Y0 <- predict(model, x = seq(0.1,max(Deriv2.df$avg),length=DerivSet), deriv=0)
+          Y1 <- predict(model, x = seq(0.1,max(Deriv2.df$avg),length=DerivSet), deriv=1)
+          Y2 <- predict(model, x = seq(0.1,max(Deriv2.df$avg),length=DerivSet), deriv=2)
           DerivSR.df <- data.frame(x=Y1$x, y=Y0$y ,d1=Y1$y, d2=Y2$y)
           DerivSR.df <- DerivSR.df[DerivSR.df$d2 < 0,]
           
@@ -204,9 +206,9 @@
         }else{
             DerivS.df <- Deriv.df[Deriv.df$Samples == Samples.set[i], ]
             model <- smooth.spline(x = DerivS.df$avg, y = DerivS.df$smooth)
-            Y0 <- predict(model, x = seq(0.1,max(DerivS.df$avg),length=50), deriv=0)
-            Y1 <- predict(model, x = seq(0.1,max(DerivS.df$avg),length=50), deriv=1)
-            Y2 <- predict(model, x = seq(0.1,max(DerivS.df$avg),length=50), deriv=2)
+            Y0 <- predict(model, x = seq(0.1,max(DerivS.df$avg),length=DerivSet), deriv=0)
+            Y1 <- predict(model, x = seq(0.1,max(DerivS.df$avg),length=DerivSet), deriv=1)
+            Y2 <- predict(model, x = seq(0.1,max(DerivS.df$avg),length=DerivSet), deriv=2)
             DerivSR.df <- data.frame(x=Y1$x, y=Y0$y ,d1=Y1$y, d2=Y2$y)
             DerivSR.df <- DerivSR.df[DerivSR.df$d2 < 0,]
             
